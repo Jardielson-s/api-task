@@ -8,20 +8,13 @@ import (
 	"github.com/Jardielson-s/api-task/cmd/migrations"
 	"github.com/Jardielson-s/api-task/cmd/seeders"
 	"github.com/Jardielson-s/api-task/infra"
+	"github.com/Jardielson-s/api-task/modules/auth"
 	"github.com/Jardielson-s/api-task/modules/users"
 	httpSwagger "github.com/swaggo/http-swagger"
 
 	_ "github.com/Jardielson-s/api-task/docs"
 	_ "github.com/go-sql-driver/mysql"
-	/*adicionar essa linha */)
-
-// func init() {
-// 	viper.SetConfigFile(`config.json`)
-// 	err := viper.ReadInConfig()
-// 	if err != nil {
-// 		panic(err)
-// 	}
-// }
+)
 
 // @title			TASKS-API REST API
 // @version		1.0
@@ -39,6 +32,7 @@ func main() {
 
 	mux := http.NewServeMux()
 	users.UserRoutes(mux, db)
+	auth.AuthRoutes(mux, db)
 
 	// authService := authService.NewAuthService(userRepo)
 	mux.Handle("/swagger/", httpSwagger.WrapHandler)

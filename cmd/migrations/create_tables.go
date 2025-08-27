@@ -11,7 +11,6 @@ import (
 )
 
 type IndexInfo struct {
-	// Essa estrutura pode ter mais ou menos campos dependendo das colunas do resultado
 	ColumnName string `gorm:"column:Column_name"`
 	KeyName    string `gorm:"column:Key_name"`
 	NonUnique  int    `gorm:"column:Non_unique"` // 1 se o índice não for único
@@ -28,5 +27,10 @@ func RunMigrates(db *gorm.DB) {
 	db.Raw(`SHOW INDEX FROM role_permissions where key_name ='idx_role_permission';`).Scan(&indexes)
 	if len(indexes) == 0 {
 		db.Exec("CREATE UNIQUE INDEX idx_role_permission ON role_permissions(role_id, permission_id)")
+	}
+	var indexesUserRoles []IndexInfo
+	db.Raw(`SHOW INDEX FROM user_roles where key_name ='idx_users_roles';`).Scan(&indexesUserRoles)
+	if len(indexesUserRoles) == 0 {
+		db.Exec("CREATE UNIQUE INDEX idx_users_roles ON user_roles(role_id, user_id)")
 	}
 }

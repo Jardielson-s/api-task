@@ -15,6 +15,7 @@ type TokenInfo struct {
 	Username   string
 	Email      string
 	Permission *[]string
+	Roles      *[]string
 }
 
 func CreateToken(input TokenInfo) (string, error) {
@@ -24,6 +25,7 @@ func CreateToken(input TokenInfo) (string, error) {
 			"username":    input.Username,
 			"email":       input.Email,
 			"permissions": input.Permission,
+			"roles":       input.Roles,
 			"exp":         time.Now().Add(time.Hour * 24).Unix(),
 		})
 

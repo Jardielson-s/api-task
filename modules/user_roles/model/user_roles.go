@@ -10,8 +10,8 @@ import (
 
 type UserRoles struct {
 	*gorm.Model
-	UserId    int `gorm:"primaryKey"`
-	RoleId    int `gorm:"primaryKey"`
+	UserId    int `gorm:"not null"`
+	RoleId    int `gorm:"not null"`
 	CreatedAt time.Time
 	DeletedAt gorm.DeletedAt
 	User      model.User     `gorm:"foreignKey:UserId;references:ID"`

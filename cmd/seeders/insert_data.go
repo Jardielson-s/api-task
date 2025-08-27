@@ -8,7 +8,8 @@ import (
 	roleModel "github.com/Jardielson-s/api-task/modules/roles/model"
 	userModel "github.com/Jardielson-s/api-task/modules/users/model"
 
-	// userRoles "github.com/Jardielson-s/api-task/modules/user_roles/model"
+	userRolesModel "github.com/Jardielson-s/api-task/modules/user_roles/model"
+
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
@@ -88,12 +89,36 @@ func InsertData02(db *gorm.DB) {
 		}
 	}
 	db.Clauses(clause.OnConflict{
-		// Columns:   []clause.Column{{Name: "role_id"}, {Name: "permission_id"}},
 		DoUpdates: clause.AssignmentColumns([]string{"role_id", "permission_id"}),
 	}).CreateInBatches(rolePermissions, len(rolePermissions))
+}
+
+func InsertData03(db *gorm.DB) {
+	var users []userModel.User
+	db.Where("email = ?", "manager@company.com").Model(&userModel.User{}).Find(&users)
+
+	var rolesManager []roleModel.Role
+	db.Where("name = ?", "Manager").Model(&roleModel.Role{}).Find(&rolesManager)
+
+	var userRoles []userRolesModel.UserRoles
+	for _, user := range users {
+		for _, role := range rolesManager {
+			userRoles = append(
+				userRoles,
+				userRolesModel.UserRoles{
+					RoleId: role.ID,
+					UserId: user.ID,
+				},
+			)
+		}
+	}
+	db.Clauses(clause.OnConflict{
+		DoUpdates: clause.AssignmentColumns([]string{"role_id", "user_id"}),
+	}).CreateInBatches(userRoles, len(userRoles))
 }
 
 func RunSeeders(db *gorm.DB) {
 	InsertData01(db)
 	InsertData02(db)
+	InsertData03(db)
 }
