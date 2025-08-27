@@ -16,3 +16,8 @@ type User struct {
 	UpdatedAt time.Time
 	DeletedAt gorm.DeletedAt
 }
+
+type UpdateUser struct {
+	Email    string  `json:"email"`
+	Password *string `json:"password"`
+}

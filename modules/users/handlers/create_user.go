@@ -2,16 +2,28 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
-	userModel "github.com/Jardielson-s/api-task/modules/users/model"
-
+	"github.com/Jardielson-s/api-task/modules/shared"
+	"github.com/Jardielson-s/api-task/modules/users/model"
+	"github.com/Jardielson-s/api-task/modules/users/repository"
 	"github.com/Jardielson-s/api-task/modules/users/services"
+	"github.com/go-playground/validator/v10"
 )
+
+type CreateUserBody struct {
+	Username string `json:"username" validate:"required,min=5,max=100"`
+	Email    string `json:"email" validate:"required,min=10,max=100"`
+	Password string `json:"password" validate:"required,min=6,max=8"`
+}
 
 type UserHandler struct {
 	service services.UserService
+	repo    repository.UserRepository
 }
+
+var validate = validator.New()
 
 // CreateUser godoc
 //
@@ -20,24 +32,48 @@ type UserHandler struct {
 //	@Tags			users
 //	@Accept			json
 //	@Produce		json
-//	@Param			user	body		entity.User	true	"User data"
-//	@Success		201		{object}	entity.User
-//	@Failure		400		{string}	string	"Bad Request"
+//	@Param			user	body		CreateUserBody true "Descrição do parâmetro"
+//	@Success		201		{object}	shared.CreateUserResponse  "Usuário criado com sucesso"
+//	@Failure		400		{object}	shared.CreateResponse
+//
+// @Failure 		400 	{object}	shared.CreateResponse
+//
 //	@Failure		500		{string}	string	"Internal Server Error"
 //	@Router			/users [post]
-func NewUserHandler(service services.UserService) *UserHandler {
-	return &UserHandler{service}
+func NewUserHandler(service services.UserService, repository repository.UserRepository) *UserHandler {
+	return &UserHandler{service, repository}
 }
 
 func (h *UserHandler) CreateUserHandler(w http.ResponseWriter, r *http.Request) {
-	var user userModel.User
+	var user CreateUserBody
 	if err := json.NewDecoder((r.Body)).Decode(&user); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	result, err := h.service.CreateUserService(&user)
+	err := validate.Struct(user)
+	fmt.Println(err)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		errorResponse := shared.CreateResponse{
+			Code:    http.StatusBadRequest,
+			Message: err.Error(),
+			Details: err.Error(),
+		}
+		shared.JSONError(w, errorResponse, http.StatusBadRequest)
+		return
+	}
+	result, err := h.service.CreateUserService(&model.User{
+		Username: user.Username,
+		Email:    user.Email,
+		Password: user.Password,
+	})
+	if err != nil {
+		errorResponse := shared.CreateResponse{
+			Code:    http.StatusBadRequest,
+			Message: err.Error(),
+			Details: err.Error(),
+		}
+		shared.JSONError(w, errorResponse, http.StatusBadRequest)
+
 		return
 	}
 

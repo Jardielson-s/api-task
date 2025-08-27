@@ -1,15 +1,17 @@
 package services
 
 import (
-	"log"
+	"errors"
 
 	"github.com/Jardielson-s/api-task/internal/authenticate"
 	userModel "github.com/Jardielson-s/api-task/modules/users/model"
 	"github.com/Jardielson-s/api-task/modules/users/repository"
+	"gorm.io/gorm"
 )
 
 type UserService interface {
 	CreateUserService(user *userModel.User) (userModel.User, error)
+	UpdateUserService(id int, update userModel.UpdateUser) (userModel.User, error)
 }
 
 type userService struct {
@@ -21,11 +23,43 @@ func NewUserService(repo repository.UserRepository) UserService {
 }
 
 func (s userService) CreateUserService(user *userModel.User) (userModel.User, error) {
+	userAlreadyExists, err := s.repo.FindByEmail(user.Email)
+	if err == nil {
+		return userAlreadyExists, errors.New(`Email already exists.`)
+	}
+
 	hash, err := authenticate.CreateHash(user.Password)
 	if err != nil {
-		log.Fatal("Error to create password hash")
+		return userAlreadyExists, err
 	}
 	user.Password = hash
 	result, err := s.repo.Create(user)
+	return result, err
+}
+
+func (s userService) UpdateUserService(id int, update userModel.UpdateUser) (userModel.User, error) {
+	user, err := s.repo.FindById(id)
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return user, errors.New(`User not found`)
+		}
+		return user, errors.New(`Error retrieving user`)
+
+	}
+
+	userAlreadyExists, err := s.repo.FindByEmail(update.Email)
+	if err == nil {
+		return userAlreadyExists, errors.New(`Email already exists.`)
+	}
+
+	user.Email = update.Email
+	if update.Password != nil {
+		hash, err := authenticate.CreateHash(*update.Password)
+		if err != nil {
+			return user, errors.New(`Error to update user`)
+		}
+		user.Password = hash
+	}
+	result, err := s.repo.UpdateUser(id, user)
 	return result, err
 }

@@ -8,18 +8,12 @@ import (
 	"github.com/Jardielson-s/api-task/cmd/migrations"
 	"github.com/Jardielson-s/api-task/cmd/seeders"
 	"github.com/Jardielson-s/api-task/infra"
-	"github.com/Jardielson-s/api-task/internal/authenticate"
-	AuthHandlers "github.com/Jardielson-s/api-task/modules/auth/handlers"
-	UserHandlers "github.com/Jardielson-s/api-task/modules/users/handlers"
-
-	authService "github.com/Jardielson-s/api-task/modules/auth/services"
-	"github.com/Jardielson-s/api-task/modules/users/repository"
-	"github.com/Jardielson-s/api-task/modules/users/services"
+	"github.com/Jardielson-s/api-task/modules/users"
+	httpSwagger "github.com/swaggo/http-swagger"
 
 	_ "github.com/Jardielson-s/api-task/docs"
 	_ "github.com/go-sql-driver/mysql"
-	httpSwagger "github.com/swaggo/http-swagger" /*adicionar essa linha */
-)
+	/*adicionar essa linha */)
 
 // func init() {
 // 	viper.SetConfigFile(`config.json`)
@@ -43,17 +37,17 @@ func main() {
 	// seed the tables
 	seeders.RunSeeders(db)
 
-	userRepo := repository.NewUserRepository(db)
-	userService := services.NewUserService(userRepo)
-	userHandler := UserHandlers.NewUserHandler(userService)
-	authService := authService.NewAuthService(userRepo)
-	http.Handle("/swagger/", httpSwagger.WrapHandler)
-	auth := AuthHandlers.NewLoginHandler(authService, userRepo)
-	http.HandleFunc("/auth/login", auth.LoginHandler)
+	mux := http.NewServeMux()
+	users.UserRoutes(mux, db)
+
+	// authService := authService.NewAuthService(userRepo)
+	mux.Handle("/swagger/", httpSwagger.WrapHandler)
+	// auth := AuthHandlers.NewLoginHandler(authService, userRepo)
+	// http.HandleFunc("/auth/login", auth.LoginHandler)
 	//userHandler.CreateUserHandler
 	//http.HandlerFunc()
-	http.Handle("/users", authenticate.ProtectedHandler(http.HandlerFunc(userHandler.CreateUserHandler)))
+	// http.Handle("/users", authenticate.ProtectedHandler(http.HandlerFunc(userHandler.CreateUserHandler)))
 
 	log.Println("Server has started in: 8080")
-	http.ListenAndServe(":8080", nil)
+	http.ListenAndServe(":8080", mux)
 }

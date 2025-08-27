@@ -1,8 +1,6 @@
 package migrations
 
 import (
-	"fmt"
-
 	permissionModel "github.com/Jardielson-s/api-task/modules/permissions/model"
 	rolePermissionsModel "github.com/Jardielson-s/api-task/modules/role_permissions/model"
 	roleModel "github.com/Jardielson-s/api-task/modules/roles/model"
@@ -30,7 +28,5 @@ func RunMigrates(db *gorm.DB) {
 	db.Raw(`SHOW INDEX FROM role_permissions where key_name ='idx_role_permission';`).Scan(&indexes)
 	if len(indexes) == 0 {
 		db.Exec("CREATE UNIQUE INDEX idx_role_permission ON role_permissions(role_id, permission_id)")
-	} else {
-		fmt.Println("Índice único composto já existe!")
 	}
 }

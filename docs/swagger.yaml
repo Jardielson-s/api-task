@@ -7,7 +7,65 @@ definitions:
       password:
         type: string
     type: object
-  entity.User:
+  handlers.CreateUserBody:
+    properties:
+      email:
+        maxLength: 100
+        minLength: 10
+        type: string
+      password:
+        maxLength: 8
+        minLength: 6
+        type: string
+      username:
+        maxLength: 100
+        minLength: 5
+        type: string
+    required:
+    - email
+    - password
+    - username
+    type: object
+  handlers.UpdateUserBody:
+    properties:
+      email:
+        maxLength: 100
+        minLength: 10
+        type: string
+      password:
+        maxLength: 8
+        minLength: 6
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  shared.CreateResponse:
+    properties:
+      code:
+        type: integer
+      details:
+        description: Optional field for more specifics
+        type: string
+      message:
+        type: string
+    type: object
+  shared.CreateUserResponse:
+    properties:
+      createdAt:
+        type: string
+      deletedAt:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      password:
+        type: string
+      updatedAt:
+        type: string
+      username:
+        type: string
     type: object
 host: localhost:8080
 info:
@@ -52,28 +110,164 @@ paths:
       - application/json
       description: Create a new user in the database
       parameters:
-      - description: User data
+      - description: Descrição do parâmetro
         in: body
         name: user
         required: true
         schema:
-          $ref: '#/definitions/entity.User'
+          $ref: '#/definitions/handlers.CreateUserBody'
       produces:
       - application/json
       responses:
         "201":
-          description: Created
+          description: Usuário criado com sucesso
           schema:
-            $ref: '#/definitions/entity.User'
+            $ref: '#/definitions/shared.CreateUserResponse'
         "400":
           description: Bad Request
           schema:
-            type: string
+            $ref: '#/definitions/shared.CreateResponse'
         "500":
           description: Internal Server Error
           schema:
             type: string
       summary: Create a new user
+      tags:
+      - users
+  /users/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Find user by id in the database
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User data
+          schema:
+            $ref: '#/definitions/shared.CreateUserResponse'
+        "400":
+          description: Invalid ID supplied
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: User not found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Find user by id
+      tags:
+      - users
+  /users/delete/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete  user in the database
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: User not found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Delete user
+      tags:
+      - users
+  /users/list:
+    get:
+      consumes:
+      - application/json
+      description: List users in the database
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Page size
+        in: query
+        name: pageSize
+        type: integer
+      - description: Search query for username or email
+        in: query
+        name: search
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Paginated list of users
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: List users
+      tags:
+      - users
+  /users/update/{id}:
+    patch:
+      consumes:
+      - application/json
+      description: Update user in the database
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Descrição do parâmetro
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.UpdateUserBody'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Usuário atualizado com sucesso
+          schema:
+            $ref: '#/definitions/shared.CreateUserResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.CreateResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Update user
       tags:
       - users
 swagger: "2.0"
