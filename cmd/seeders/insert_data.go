@@ -1,6 +1,7 @@
 package seeders
 
 import (
+	"github.com/Jardielson-s/api-task/internal/authenticate"
 	permissionModel "github.com/Jardielson-s/api-task/modules/permissions/model"
 	rolePermissionsModel "github.com/Jardielson-s/api-task/modules/role_permissions/model"
 	"github.com/Jardielson-s/api-task/modules/roles/model"
@@ -14,9 +15,10 @@ import (
 
 func InsertData01(db *gorm.DB) {
 
+	hash, _ := authenticate.CreateHash("password123")
 	var users = []userModel.User{
-		{Username: "manager", Email: "manager@company.com", Password: "password123"},
-		{Username: "tech1", Email: "tech1@company.com", Password: "password123"},
+		{Username: "manager", Email: "manager@company.com", Password: hash},
+		{Username: "tech1", Email: "tech1@company.com", Password: hash},
 	}
 	db.Clauses(clause.OnConflict{
 		Columns:   []clause.Column{{Name: "email"}},

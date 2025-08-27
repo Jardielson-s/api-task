@@ -29,7 +29,12 @@ func (s authService) Login(login *entity.Login) (string, error) {
 	if !authenticate.CompareHash(login.Password, user.Password) {
 		return "", errors.New(`Email or password incorrect`)
 	}
-	token, err := authenticate.CreateToken(user.Username)
+	token, err := authenticate.CreateToken(authenticate.TokenInfo{
+		ID:       user.ID,
+		Username: user.Username,
+		Email:    user.Email,
+		// Permission: []string{"create", "edit", "delete", "view"},
+	})
 	if err != nil {
 		return "", err
 	}

@@ -10,11 +10,21 @@ import (
 
 var secretKey = []byte(os.Getenv("SECRET_KEY"))
 
-func CreateToken(username string) (string, error) {
+type TokenInfo struct {
+	ID         int
+	Username   string
+	Email      string
+	Permission *[]string
+}
+
+func CreateToken(input TokenInfo) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256,
 		jwt.MapClaims{
-			"username": username,
-			"exp":      time.Now().Add(time.Hour * 24).Unix(),
+			"id":          input.ID,
+			"username":    input.Username,
+			"email":       input.Email,
+			"permissions": input.Permission,
+			"exp":         time.Now().Add(time.Hour * 24).Unix(),
 		})
 
 	tokenString, err := token.SignedString(secretKey)

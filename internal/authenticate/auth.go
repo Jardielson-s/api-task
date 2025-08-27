@@ -42,14 +42,20 @@ func ProtectedHandler(next http.Handler) http.Handler {
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
+		tokenInfo := TokenInfo{
+			Username: claims["username"].(string),
+			Email:    claims["email"].(string),
+			ID:       int(claims["id"].(float64)),
+			// Permission: []
+		}
+		fmt.Println(tokenInfo)
 
-		username, ok := claims["username"].(string)
 		if !ok {
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
-
-		ctx := context.WithValue(r.Context(), "username", username)
+		fmt.Println(tokenInfo)
+		ctx := context.WithValue(r.Context(), "tokenInfo", tokenInfo)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
