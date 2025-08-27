@@ -44,7 +44,6 @@ func (u userRepository) ListUsers(page, pageSize int, searchQuery string) ([]use
 	offset := (page - 1) * pageSize
 	query := u.db.Model(&userModel.User{})
 	if searchQuery != "" {
-		// Adicionando filtro de pesquisa no username e email
 		query = query.Where("username LIKE ? OR email LIKE ?", "%"+searchQuery+"%", "%"+searchQuery+"%")
 	}
 	if err := query.Limit(pageSize).Offset(offset).Find(&users).Error; err != nil {
@@ -95,7 +94,6 @@ func (u userRepository) DeleteUser(id int) error {
 	return nil
 }
 
-// db.Where("age = ?", 20).Delete(&User{})
 func NewUserRepository(db *gorm.DB) UserRepository {
 	return userRepository{db}
 }
