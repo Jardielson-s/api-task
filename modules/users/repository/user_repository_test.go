@@ -4,7 +4,7 @@ package repository
 // 	"errors"
 // 	"testing"
 
-// 	entity "github.com/Jardielson-s/api-task/modules/users/entities"
+// 	userModel "github.com/Jardielson-s/api-task/modules/users/model"
 // 	"github.com/stretchr/testify/assert"
 // 	"github.com/stretchr/testify/mock"
 // )
@@ -28,7 +28,7 @@ package repository
 // 	mockRepo := new(MockTaskRepository)
 
 // 	// Simulando que a função GetAll retorna um erro
-// 	mockRepo.On("GetAll").Return([]entity.User{}, nil)
+// 	mockRepo.On("GetAll").Return([]userModel.User{}, nil)
 
 // 	tasks, err := mockRepo.GetAll()
 

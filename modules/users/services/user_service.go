@@ -4,12 +4,12 @@ import (
 	"log"
 
 	"github.com/Jardielson-s/api-task/internal/authenticate"
-	entity "github.com/Jardielson-s/api-task/modules/users/entities"
+	userModel "github.com/Jardielson-s/api-task/modules/users/model"
 	"github.com/Jardielson-s/api-task/modules/users/repository"
 )
 
 type UserService interface {
-	CreateUserService(user *entity.User) (entity.User, error)
+	CreateUserService(user *userModel.User) (userModel.User, error)
 }
 
 type userService struct {
@@ -20,7 +20,7 @@ func NewUserService(repo repository.UserRepository) UserService {
 	return &userService{repo}
 }
 
-func (s userService) CreateUserService(user *entity.User) (entity.User, error) {
+func (s userService) CreateUserService(user *userModel.User) (userModel.User, error) {
 	hash, err := authenticate.CreateHash(user.Password)
 	if err != nil {
 		log.Fatal("Error to create password hash")

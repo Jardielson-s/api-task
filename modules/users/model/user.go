@@ -6,10 +6,12 @@ import (
 	"gorm.io/gorm"
 )
 
-type Permission struct {
+type User struct {
 	*gorm.Model
 	ID        int    `gorm:"primaryKey"`
-	Name      string `gorm:"index:,unique"`
+	Username  string `gorm:"username"`
+	Email     string `gorm:"index:,unique"`
+	Password  string `gorm:"password"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	DeletedAt gorm.DeletedAt

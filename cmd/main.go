@@ -5,10 +5,11 @@ import (
 	"net/http"
 
 	"github.com/Jardielson-s/api-task/cmd/configs"
+	"github.com/Jardielson-s/api-task/cmd/migrations"
+	"github.com/Jardielson-s/api-task/cmd/seeders"
 	"github.com/Jardielson-s/api-task/infra"
 	"github.com/Jardielson-s/api-task/internal/authenticate"
 	AuthHandlers "github.com/Jardielson-s/api-task/modules/auth/handlers"
-	entity "github.com/Jardielson-s/api-task/modules/users/entities"
 	UserHandlers "github.com/Jardielson-s/api-task/modules/users/handlers"
 
 	authService "github.com/Jardielson-s/api-task/modules/auth/services"
@@ -37,7 +38,11 @@ func main() {
 
 	configs.Envs()
 	db, _ := infra.InitInfraDb()
-	db.AutoMigrate(&entity.User{})
+	// run migrates
+	migrations.RunMigrates(db)
+	// seed the tables
+	seeders.RunSeeders(db)
+
 	userRepo := repository.NewUserRepository(db)
 	userService := services.NewUserService(userRepo)
 	userHandler := UserHandlers.NewUserHandler(userService)

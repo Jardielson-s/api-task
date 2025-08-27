@@ -4,7 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
-	entity "github.com/Jardielson-s/api-task/modules/users/entities"
+	userModel "github.com/Jardielson-s/api-task/modules/users/model"
+
 	"github.com/Jardielson-s/api-task/modules/users/services"
 )
 
@@ -29,7 +30,7 @@ func NewUserHandler(service services.UserService) *UserHandler {
 }
 
 func (h *UserHandler) CreateUserHandler(w http.ResponseWriter, r *http.Request) {
-	var user entity.User
+	var user userModel.User
 	if err := json.NewDecoder((r.Body)).Decode(&user); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
