@@ -45,7 +45,7 @@ func TestFindByName(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, "Task", foundTask.Name)
 
-	_, err = repo.FindByName("Task not found")
+	_, err = repo.FindByName("task not found")
 	assert.Error(t, err)
 	assert.True(t, errors.Is(err, gorm.ErrRecordNotFound))
 }
@@ -55,9 +55,9 @@ func TestListTasks(t *testing.T) {
 	assert.NoError(t, err)
 	repo := NewTaskRepository(db)
 
-	db.Create(&model.Task{Name: "Task 1", UserId: 1, Summary: "Summary"})
-	db.Create(&model.Task{Name: "Task 2", UserId: 2, Summary: "Summary"})
-	db.Create(&model.Task{Name: "Task Filter", UserId: 1, Summary: "Summary"})
+	db.Create(&model.Task{Name: "Task 1", UserId: 1, Summary: "Summary", Status: "pending"})
+	db.Create(&model.Task{Name: "Task 2", UserId: 2, Summary: "Summary", Status: "pending"})
+	db.Create(&model.Task{Name: "Task Filter", UserId: 1, Summary: "Summary", Status: "pending"})
 
 	tasks, count, err := repo.ListTasks(1, 10, "", nil)
 	assert.NoError(t, err)
@@ -82,7 +82,7 @@ func TestFindById(t *testing.T) {
 	assert.NoError(t, err)
 	repo := NewTaskRepository(db)
 
-	task := model.Task{Name: "Task ID", UserId: 1, Summary: "Summary"}
+	task := model.Task{Name: "Task ID", UserId: 1, Summary: "Summary", Status: "pending"}
 	db.Create(&task)
 
 	foundTask, err := repo.FindById(int(task.ID))
@@ -91,7 +91,7 @@ func TestFindById(t *testing.T) {
 
 	_, err = repo.FindById(999)
 	assert.Error(t, err)
-	assert.EqualError(t, err, "Task not found")
+	assert.EqualError(t, err, "task not found")
 }
 
 func TestUpdateTask(t *testing.T) {
@@ -102,7 +102,7 @@ func TestUpdateTask(t *testing.T) {
 	task := model.Task{Name: "Tarefa para Atualizar", UserId: 1, Summary: "Summary"}
 	db.Create(&task)
 
-	updateData := model.Task{Name: "Task updated", ID: int(task.ID), UserId: 1, Summary: "test summary"}
+	updateData := model.Task{Name: "Task updated", ID: int(task.ID), UserId: 1, Summary: "test summary", Status: "pending"}
 	updatedTask, err := repo.UpdateTask(int(task.ID), updateData)
 
 	assert.NoError(t, err)
@@ -118,7 +118,7 @@ func TestDeleteTask(t *testing.T) {
 	assert.NoError(t, err)
 	repo := NewTaskRepository(db)
 
-	task := model.Task{Name: "Task to delete", UserId: 1, Summary: "Summary Test"}
+	task := model.Task{Name: "Task to delete", UserId: 1, Summary: "Summary Test", Status: "pending"}
 	db.Create(&task)
 
 	err = repo.DeleteTask(int(task.ID))
@@ -130,5 +130,5 @@ func TestDeleteTask(t *testing.T) {
 
 	err = repo.DeleteTask(999)
 	assert.Error(t, err)
-	assert.EqualError(t, err, "Task not found")
+	assert.EqualError(t, err, "task not found")
 }

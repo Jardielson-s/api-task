@@ -110,7 +110,7 @@ func TestFindById(t *testing.T) {
 
 	_, err = repo.FindById(999)
 	assert.Error(t, err)
-	assert.EqualError(t, err, "User not found")
+	assert.EqualError(t, err, "user not found")
 }
 
 func TestUpdateUser(t *testing.T) {
@@ -150,5 +150,5 @@ func TestDeleteUser(t *testing.T) {
 
 	err = repo.DeleteUser(999)
 	assert.Error(t, err)
-	assert.EqualError(t, err, "User not found")
+	assert.EqualError(t, err, "user not found")
 }
