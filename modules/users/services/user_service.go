@@ -49,7 +49,7 @@ func (s userService) UpdateUserService(id int, update userModel.UpdateUser) (use
 
 	userAlreadyExists, err := s.repo.FindByEmail(update.Email)
 	if err == nil {
-		return userAlreadyExists, errors.New(`email already exists.`)
+		return userAlreadyExists, errors.New(`email already exists`)
 	}
 
 	user.Email = update.Email
