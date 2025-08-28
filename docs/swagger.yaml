@@ -2,35 +2,50 @@ definitions:
   entity.Login:
     properties:
       email:
+        example: manager@company.com
         type: string
       password:
+        example: password123
         type: string
     type: object
   handlers.CreateTaskBody:
     properties:
       name:
+        example: Test 1
         maxLength: 100
         minLength: 5
         type: string
+      status:
+        enum:
+        - active
+        - inactive
+        - pending
+        example: pending
+        type: string
       summary:
+        example: Summary Test 1
         maxLength: 200
         minLength: 10
         type: string
     required:
     - name
+    - status
     - summary
     type: object
   handlers.CreateUserBody:
     properties:
       email:
+        example: test@gmail.com
         maxLength: 100
         minLength: 10
         type: string
       password:
+        example: test123456
         maxLength: 8
         minLength: 6
         type: string
       username:
+        example: Test User
         maxLength: 100
         minLength: 5
         type: string
@@ -42,21 +57,30 @@ definitions:
   handlers.UpdateTaskBody:
     properties:
       name:
+        example: New Name
         maxLength: 100
         minLength: 4
         type: string
-      summary:
+      status:
+        enum:
+        - active
+        - inactive
+        - pending
+        example: pending
         type: string
-    required:
-    - name
+      summary:
+        example: New summary
+        type: string
     type: object
   handlers.UpdateUserBody:
     properties:
       email:
+        example: New Name
         maxLength: 100
         minLength: 10
         type: string
       password:
+        example: NewPassword123
         type: string
     required:
     - email

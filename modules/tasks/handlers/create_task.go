@@ -16,8 +16,9 @@ import (
 )
 
 type CreateTaskBody struct {
-	Name    string `json:"name" validate:"required,min=5,max=100"`
-	Summary string `json:"summary" validate:"required,min=10,max=200"`
+	Name    string `json:"name" validate:"required,min=5,max=100" example:"Test 1"`
+	Summary string `json:"summary" validate:"required,min=10,max=200" example:"Summary Test 1"`
+	Status  string `json:"status" validate:"required,oneof=active inactive pending" example:"pending"`
 }
 
 type TaskHandler struct {

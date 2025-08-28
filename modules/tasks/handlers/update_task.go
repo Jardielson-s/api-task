@@ -11,8 +11,9 @@ import (
 )
 
 type UpdateTaskBody struct {
-	Name    string  `json:"name" validate:"required,min=4,max=100"`
-	Summary *string `json:"summary"`
+	Name    *string `json:"name" validate:"min=4,max=100" example:"New Name"`
+	Summary *string `json:"summary" example:"New summary"`
+	Status  *string `json:"status" validate:"oneof=active inactive pending" example:"pending"`
 }
 
 // UpdateTask godoc
@@ -65,6 +66,7 @@ func (h *TaskHandler) UpdateTaskHandler(w http.ResponseWriter, r *http.Request) 
 	result, err := h.service.UpdateTaskService(idNum, model.TaskUpdate{
 		Name:    task.Name,
 		Summary: task.Summary,
+		Status:  task.Status,
 	}, userId)
 
 	if err != nil {

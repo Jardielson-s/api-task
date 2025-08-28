@@ -13,6 +13,7 @@ type Task struct {
 	UserId    int    `gorm:"foreignKey:,unique"`
 	Name      string `gorm:"index:,unique"`
 	Summary   string `gorm:"summary"`
+	Status    string `gorm:"status"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	DeletedAt gorm.DeletedAt
@@ -20,6 +21,7 @@ type Task struct {
 }
 
 type TaskUpdate struct {
-	Name    string  `json:"name"`
+	Name    *string `json:"name"`
 	Summary *string `json:"summary"`
+	Status  *string `json:"status"`
 }

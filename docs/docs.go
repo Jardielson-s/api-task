@@ -614,10 +614,12 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "email": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "manager@company.com"
                 },
                 "password": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "password123"
                 }
             }
         },
@@ -625,18 +627,30 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "name",
+                "status",
                 "summary"
             ],
             "properties": {
                 "name": {
                     "type": "string",
                     "maxLength": 100,
-                    "minLength": 5
+                    "minLength": 5,
+                    "example": "Test 1"
+                },
+                "status": {
+                    "type": "string",
+                    "enum": [
+                        "active",
+                        "inactive",
+                        "pending"
+                    ],
+                    "example": "pending"
                 },
                 "summary": {
                     "type": "string",
                     "maxLength": 200,
-                    "minLength": 10
+                    "minLength": 10,
+                    "example": "Summary Test 1"
                 }
             }
         },
@@ -651,33 +665,44 @@ const docTemplate = `{
                 "email": {
                     "type": "string",
                     "maxLength": 100,
-                    "minLength": 10
+                    "minLength": 10,
+                    "example": "test@gmail.com"
                 },
                 "password": {
                     "type": "string",
                     "maxLength": 8,
-                    "minLength": 6
+                    "minLength": 6,
+                    "example": "test123456"
                 },
                 "username": {
                     "type": "string",
                     "maxLength": 100,
-                    "minLength": 5
+                    "minLength": 5,
+                    "example": "Test User"
                 }
             }
         },
         "handlers.UpdateTaskBody": {
             "type": "object",
-            "required": [
-                "name"
-            ],
             "properties": {
                 "name": {
                     "type": "string",
                     "maxLength": 100,
-                    "minLength": 4
+                    "minLength": 4,
+                    "example": "New Name"
+                },
+                "status": {
+                    "type": "string",
+                    "enum": [
+                        "active",
+                        "inactive",
+                        "pending"
+                    ],
+                    "example": "pending"
                 },
                 "summary": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "New summary"
                 }
             }
         },
@@ -690,10 +715,12 @@ const docTemplate = `{
                 "email": {
                     "type": "string",
                     "maxLength": 100,
-                    "minLength": 10
+                    "minLength": 10,
+                    "example": "New Name"
                 },
                 "password": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "NewPassword123"
                 }
             }
         },

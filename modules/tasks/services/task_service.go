@@ -41,11 +41,13 @@ func (s taskService) UpdateTaskService(id int, update model.TaskUpdate, userId *
 		}
 		return task, errors.New(`Error retrieving task`)
 	}
-	taskAlreadyExists, err := s.repo.FindByName(update.Name)
+	taskAlreadyExists, err := s.repo.FindByName(*update.Name)
 	if err == nil {
 		return taskAlreadyExists, errors.New(`Task already exists.`)
 	}
-	task.Name = update.Name
+	if update.Status != nil {
+		task.Status = *update.Status
+	}
 	if update.Summary != nil {
 		task.Summary = *update.Summary
 	}

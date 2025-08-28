@@ -10,8 +10,8 @@ import (
 )
 
 type UpdateUserBody struct {
-	Email    string  `json:"email" validate:"required,min=10,max=100"`
-	Password *string `json:"password"`
+	Email    string  `json:"email" validate:"required,min=10,max=100" example:"New Name"`
+	Password *string `json:"password" example:"NewPassword123"`
 }
 
 // UpdateUser godoc

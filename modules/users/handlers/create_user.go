@@ -12,9 +12,9 @@ import (
 )
 
 type CreateUserBody struct {
-	Username string `json:"username" validate:"required,min=5,max=100"`
-	Email    string `json:"email" validate:"required,min=10,max=100"`
-	Password string `json:"password" validate:"required,min=6,max=8"`
+	Username string `json:"username" validate:"required,min=5,max=100" example:"Test User"`
+	Email    string `json:"email" validate:"required,min=10,max=100,email" example:"test@gmail.com"`
+	Password string `json:"password" validate:"required,min=6,max=8" example:"test123456"`
 }
 
 type UserHandler struct {
