@@ -10,22 +10,30 @@ services:
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     ports:
       - '3306:3306'
+    networks:
+      - go-network
     volumes:
       - mysql-data:/var/lib/mysql
 
-  # go-app:
-  #   build: .
-  #   container_name: go-api
-  #   ports:
-  #     - '8080:8080'
-  #   environment:
-  #     DB_HOST: ${DB_HOST}
-  #     DB_PORT: ${DB_PORT}
-  #     DB_USER: ${DB_USER}
-  #     DB_PASSWORD: ${DB_PASSWORD}
-  #     DB_NAME: ${DB_NAME}
-  #   depends_on:
-  #     - mysql
+  go-app:
+    build: .
+    container_name: tasks-api
+    ports:
+      - '8080:8080'
+    environment:
+      DB_HOST: ${DB_HOST_DOCKER}
+      DB_PORT: ${DB_PORT}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+    depends_on:
+      - mysql
+    networks:
+      - go-network
 
 volumes:
   mysql-data:
+
+networks:
+  go-network:
+    driver: bridge

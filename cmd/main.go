@@ -1,8 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/Jardielson-s/api-task/cmd/migrations"
 	"github.com/Jardielson-s/api-task/cmd/seeders"
@@ -41,6 +43,6 @@ func main() {
 
 	mux.Handle("/swagger/", httpSwagger.WrapHandler)
 
-	log.Println("Server has started in: 8080")
-	http.ListenAndServe(":8080", mux)
+	log.Println(fmt.Sprint("Server has started in: ", os.Getenv("PORT")))
+	http.ListenAndServe(fmt.Sprint(":", os.Getenv("PORT")), mux)
 }
