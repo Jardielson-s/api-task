@@ -2,7 +2,6 @@ package services
 
 import (
 	"errors"
-	"fmt"
 
 	"github.com/Jardielson-s/api-task/internal/authenticate"
 	entity "github.com/Jardielson-s/api-task/modules/auth/entities"
@@ -33,13 +32,13 @@ func NewAuthService(
 func (s authService) Login(login *entity.Login) (string, error) {
 	user, err := s.repo.FindByEmail(login.Email)
 	if err != nil {
-		return string(user.ID), nil
+		return string(user.ID), err
 	}
 
 	if !authenticate.CompareHash(login.Password, user.Password) {
 		return "", errors.New(`Email or password incorrect`)
 	}
-	var roles []string
+	roles := []interface{}{}
 	var rolesIds []int
 	result, err := s.userRolesRepo.FindByUserId(user.ID)
 
@@ -54,17 +53,16 @@ func (s authService) Login(login *entity.Login) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	var permissions []string
+	permissions := []interface{}{}
 	for _, rolePermission := range rolePermissions {
 		permissions = append(permissions, rolePermission.Permission.Name)
 	}
-	fmt.Println(len(rolePermissions))
 	token, err := authenticate.CreateToken(authenticate.TokenInfo{
-		ID:         user.ID,
-		Username:   user.Username,
-		Email:      user.Email,
-		Roles:      &roles,
-		Permission: &permissions,
+		ID:          user.ID,
+		Username:    user.Username,
+		Email:       user.Email,
+		Roles:       roles,
+		Permissions: permissions,
 	})
 	if err != nil {
 		return "", err

@@ -72,7 +72,6 @@ func InsertData02(db *gorm.DB) {
 		}
 	}
 	excludeNames := map[string]bool{
-		"delete":                 true,
 		"received notifications": true,
 	}
 	for _, roles := range rolesTechnician {
@@ -117,8 +116,33 @@ func InsertData03(db *gorm.DB) {
 	}).CreateInBatches(userRoles, len(userRoles))
 }
 
+func InsertData04(db *gorm.DB) {
+	var users []userModel.User
+	db.Where("email = ?", "tech1@company.com").Model(&userModel.User{}).Find(&users)
+
+	var rolesManager []roleModel.Role
+	db.Where("name = ?", "Technician").Model(&roleModel.Role{}).Find(&rolesManager)
+
+	var userRoles []userRolesModel.UserRoles
+	for _, user := range users {
+		for _, role := range rolesManager {
+			userRoles = append(
+				userRoles,
+				userRolesModel.UserRoles{
+					RoleId: role.ID,
+					UserId: user.ID,
+				},
+			)
+		}
+	}
+	db.Clauses(clause.OnConflict{
+		DoUpdates: clause.AssignmentColumns([]string{"role_id", "user_id"}),
+	}).CreateInBatches(userRoles, len(userRoles))
+}
+
 func RunSeeders(db *gorm.DB) {
 	InsertData01(db)
 	InsertData02(db)
 	InsertData03(db)
+	InsertData04(db)
 }

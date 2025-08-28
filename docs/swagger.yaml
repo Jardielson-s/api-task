@@ -1,4 +1,3 @@
-basePath: /
 definitions:
   entity.Login:
     properties:
@@ -6,6 +5,20 @@ definitions:
         type: string
       password:
         type: string
+    type: object
+  handlers.CreateTaskBody:
+    properties:
+      name:
+        maxLength: 100
+        minLength: 5
+        type: string
+      summary:
+        maxLength: 200
+        minLength: 10
+        type: string
+    required:
+    - name
+    - summary
     type: object
   handlers.CreateUserBody:
     properties:
@@ -26,6 +39,17 @@ definitions:
     - password
     - username
     type: object
+  handlers.UpdateTaskBody:
+    properties:
+      name:
+        maxLength: 100
+        minLength: 4
+        type: string
+      summary:
+        type: string
+    required:
+    - name
+    type: object
   handlers.UpdateUserBody:
     properties:
       email:
@@ -33,12 +57,9 @@ definitions:
         minLength: 10
         type: string
       password:
-        maxLength: 8
-        minLength: 6
         type: string
     required:
     - email
-    - password
     type: object
   shared.CreateResponse:
     properties:
@@ -48,6 +69,21 @@ definitions:
         description: Optional field for more specifics
         type: string
       message:
+        type: string
+    type: object
+  shared.CreateTaskResponse:
+    properties:
+      createdAt:
+        type: string
+      deletedAt:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      summary:
+        type: string
+      updatedAt:
         type: string
     type: object
   shared.CreateUserResponse:
@@ -104,6 +140,182 @@ paths:
       summary: Login
       tags:
       - login
+  /tasks:
+    post:
+      consumes:
+      - application/json
+      description: Create a new task in the database
+      parameters:
+      - description: Descrição do parâmetro
+        in: body
+        name: task
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.CreateTaskBody'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Task created
+          schema:
+            $ref: '#/definitions/shared.CreateTaskResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.CreateResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      security:
+      - Bearer: []
+      summary: Create a new task
+      tags:
+      - tasks
+  /tasks/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Find task by id in the database
+      parameters:
+      - description: Task ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Task data
+          schema:
+            $ref: '#/definitions/shared.CreateTaskResponse'
+        "400":
+          description: Invalid ID supplied
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Task not found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      security:
+      - Bearer: []
+      summary: Find task by id
+      tags:
+      - tasks
+  /tasks/delete/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete  task in the database
+      parameters:
+      - description: Task ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Task not found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      security:
+      - Bearer: []
+      summary: Delete task
+      tags:
+      - tasks
+  /tasks/list:
+    get:
+      consumes:
+      - application/json
+      description: List tasks in the database
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Page size
+        in: query
+        name: pageSize
+        type: integer
+      - description: Search query for task name
+        in: query
+        name: search
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Paginated list of tasks
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      security:
+      - Bearer: []
+      summary: List tasks
+      tags:
+      - tasks
+  /tasks/update/{id}:
+    patch:
+      consumes:
+      - application/json
+      description: Update task in the database
+      parameters:
+      - description: Task ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Description
+        in: body
+        name: task
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.UpdateTaskBody'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Task updated
+          schema:
+            $ref: '#/definitions/shared.CreateTaskResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.CreateResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      security:
+      - Bearer: []
+      summary: Update task
+      tags:
+      - tasks
   /users:
     post:
       consumes:
@@ -168,6 +380,8 @@ paths:
           description: Internal Server Error
           schema:
             type: string
+      security:
+      - Bearer: []
       summary: Find user by id
       tags:
       - users
@@ -197,6 +411,8 @@ paths:
           description: Internal Server Error
           schema:
             type: string
+      security:
+      - Bearer: []
       summary: Delete user
       tags:
       - users
@@ -232,6 +448,8 @@ paths:
           description: Internal Server Error
           schema:
             type: string
+      security:
+      - Bearer: []
       summary: List users
       tags:
       - users
@@ -267,7 +485,14 @@ paths:
           description: Internal Server Error
           schema:
             type: string
+      security:
+      - Bearer: []
       summary: Update user
       tags:
       - users
+securityDefinitions:
+  Bearer:
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

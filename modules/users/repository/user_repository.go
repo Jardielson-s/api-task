@@ -28,7 +28,6 @@ func (u userRepository) Create(input *userModel.User) (userModel.User, error) {
 }
 
 func (u userRepository) FindByEmail(email string) (userModel.User, error) {
-
 	var user userModel.User
 	err := u.db.Where("email = ?", email).First(&user).Error
 	if err != nil {

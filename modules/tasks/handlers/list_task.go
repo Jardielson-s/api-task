@@ -4,26 +4,39 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+
+	"github.com/Jardielson-s/api-task/internal/authenticate"
+	"github.com/Jardielson-s/api-task/modules/shared"
 )
 
-// ListUsers godoc
+func findElement(slice []interface{}, target string) bool {
+	for _, value := range slice {
+		if value == target {
+			return true
+		}
+	}
+	return false
+}
+
+// ListTasks godoc
 //
-//	@Summary		List users
-//	@Description	List users in the database
-//	@Tags			users
+//	@Summary		List tasks
+//	@Description	List tasks in the database
+//	@Tags			tasks
 //	@Accept			json
 //	@Produce		json
 //	@Security  Bearer
 //
 // @Param page query int false "Page number" default(1)
 // @Param pageSize query int false "Page size" default(10)
-// @Param search query string false "Search query for username or email"
-// @Success 200 {object} map[string]interface{} "Paginated list of users"
+// @Param search query string false "Search query for task name"
+// @Success 200 {object} map[string]interface{} "Paginated list of tasks"
 //
 //	@Failure		500		{string}	string	"Internal Server Error"
 //
-// @Router			/users/list [get]
-func (h *UserHandler) ListUsersHandler(w http.ResponseWriter, r *http.Request) {
+// @Router			/tasks/list [get]
+func (h *TaskHandler) ListTasksHandler(w http.ResponseWriter, r *http.Request) {
+	tokenInfo := r.Context().Value("tokenInfo").(authenticate.TokenInfo)
 	page := 1
 	pageSize := 10
 	var search string
@@ -38,9 +51,13 @@ func (h *UserHandler) ListUsersHandler(w http.ResponseWriter, r *http.Request) {
 	if sh := r.URL.Query().Get("search"); sh != "" {
 		search = sh
 	}
-	users, totalCount, err := h.repo.ListUsers(page, pageSize, search)
+	var userId *int
+	if findElement(tokenInfo.Roles, shared.GetTechnicianRole()) {
+		userId = &tokenInfo.ID
+	}
+	tasks, totalCount, err := h.repo.ListTasks(page, pageSize, search, userId)
 	if err != nil {
-		http.Error(w, "Error to load users", http.StatusInternalServerError)
+		http.Error(w, "Error to load tasks", http.StatusInternalServerError)
 		return
 	}
 
@@ -49,7 +66,7 @@ func (h *UserHandler) ListUsersHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	_ = json.NewEncoder(w).Encode(map[string]interface{}{
-		"data": users,
+		"data": tasks,
 		"meta": map[string]interface{}{
 			"totalCount": totalCount,
 			"totalPages": totalPages,

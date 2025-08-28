@@ -4,11 +4,12 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/Jardielson-s/api-task/cmd/configs"
 	"github.com/Jardielson-s/api-task/cmd/migrations"
 	"github.com/Jardielson-s/api-task/cmd/seeders"
+	"github.com/Jardielson-s/api-task/configs"
 	"github.com/Jardielson-s/api-task/infra"
 	"github.com/Jardielson-s/api-task/modules/auth"
+	"github.com/Jardielson-s/api-task/modules/tasks"
 	"github.com/Jardielson-s/api-task/modules/users"
 	httpSwagger "github.com/swaggo/http-swagger"
 
@@ -20,6 +21,9 @@ import (
 // @version		1.0
 // @description	This is a simple Go REST API using MySQL and Swagger for documentation.
 // @host			localhost:8080
+// @SecurityDefinitions.apiKey Bearer
+// @in header
+// @name Authorization
 // @BasePath		/
 func main() {
 
@@ -33,14 +37,9 @@ func main() {
 	mux := http.NewServeMux()
 	users.UserRoutes(mux, db)
 	auth.AuthRoutes(mux, db)
+	tasks.TaskRoutes(mux, db)
 
-	// authService := authService.NewAuthService(userRepo)
 	mux.Handle("/swagger/", httpSwagger.WrapHandler)
-	// auth := AuthHandlers.NewLoginHandler(authService, userRepo)
-	// http.HandleFunc("/auth/login", auth.LoginHandler)
-	//userHandler.CreateUserHandler
-	//http.HandlerFunc()
-	// http.Handle("/users", authenticate.ProtectedHandler(http.HandlerFunc(userHandler.CreateUserHandler)))
 
 	log.Println("Server has started in: 8080")
 	http.ListenAndServe(":8080", mux)

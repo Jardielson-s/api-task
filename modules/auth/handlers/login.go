@@ -39,7 +39,7 @@ func (h *LoginHandler) LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	result, err := h.service.Login(&login)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")

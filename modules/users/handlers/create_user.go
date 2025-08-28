@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/Jardielson-s/api-task/modules/shared"
@@ -51,7 +50,6 @@ func (h *UserHandler) CreateUserHandler(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 	err := validate.Struct(user)
-	fmt.Println(err)
 	if err != nil {
 		errorResponse := shared.CreateResponse{
 			Code:    http.StatusBadRequest,

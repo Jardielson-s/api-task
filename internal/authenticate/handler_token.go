@@ -5,26 +5,29 @@ import (
 	"os"
 	"time"
 
+	"github.com/Jardielson-s/api-task/configs"
 	"github.com/golang-jwt/jwt/v5"
 )
 
-var secretKey = []byte(os.Getenv("SECRET_KEY"))
-
 type TokenInfo struct {
-	ID         int
-	Username   string
-	Email      string
-	Permission *[]string
-	Roles      *[]string
+	ID          int
+	Username    string
+	Email       string
+	Permissions []interface{}
+	Roles       []interface{}
 }
 
 func CreateToken(input TokenInfo) (string, error) {
+	configs.Envs()
+
+	var secretKey = []byte(os.Getenv("SECRET_KEY"))
+
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256,
 		jwt.MapClaims{
 			"id":          input.ID,
 			"username":    input.Username,
 			"email":       input.Email,
-			"permissions": input.Permission,
+			"permissions": input.Permissions,
 			"roles":       input.Roles,
 			"exp":         time.Now().Add(time.Hour * 24).Unix(),
 		})
@@ -38,6 +41,10 @@ func CreateToken(input TokenInfo) (string, error) {
 }
 
 func VerifyToken(tokenString string) error {
+	configs.Envs()
+
+	var secretKey = []byte(os.Getenv("SECRET_KEY"))
+
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		return secretKey, nil
 	})

@@ -12,6 +12,8 @@ import (
 //
 //	@Summary		Find user by id
 //	@Description	Find user by id in the database
+//	@Security  Bearer
+//
 //	@Tags			users
 //	@Accept			json
 //	@Produce		json
