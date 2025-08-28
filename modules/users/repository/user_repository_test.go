@@ -1,158 +1,154 @@
-package repository_test
+package repository
 
 import (
 	"errors"
 	"testing"
+	"time"
 
 	"github.com/Jardielson-s/api-task/modules/users/model"
-	"github.com/Jardielson-s/api-task/modules/users/repository"
 	"github.com/stretchr/testify/assert"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
 )
 
-type MockDB struct {
-	users  map[int]model.User
-	nextID int
+// A mock struct for userModel.User, based on the provided code snippet
+type User struct {
+	ID        int `gorm:"primaryKey"`
+	Username  string
+	Email     string `gorm:"uniqueIndex"`
+	Password  string
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	DeletedAt gorm.DeletedAt
 }
 
-func NewMockDB() *MockDB {
-	return &MockDB{
-		users:  make(map[int]model.User),
-		nextID: 1,
+func (User) TableName() string {
+	return "users"
+}
+
+// setupTestDB initializes an in-memory SQLite database for testing
+func setupTestDB() (*gorm.DB, error) {
+	db, err := gorm.Open(sqlite.Open("file::memory:?cache=shared"), &gorm.Config{})
+	if err != nil {
+		return nil, err
 	}
-}
-
-func (db *MockDB) Create(user *model.User) error {
-	user.ID = db.nextID
-	db.users[db.nextID] = *user
-	db.nextID++
-	return nil
-}
-
-func (db *MockDB) Where(query string, args ...interface{}) *MockDB {
-	return db
-}
-
-func (db *MockDB) First(user *model.User) error {
-	for _, u := range db.users {
-		if u.Email == user.Email {
-			*user = u
-			return nil
-		}
-	}
-	return errors.New("user not found")
-}
-
-func (db *MockDB) Save(user *model.User) error {
-	if _, exists := db.users[user.ID]; exists {
-		db.users[user.ID] = *user
-		return nil
-	}
-	return errors.New("user not found")
-}
-
-func (db *MockDB) Delete(user *model.User) error {
-	if _, exists := db.users[user.ID]; exists {
-		delete(db.users, user.ID)
-		return nil
-	}
-	return errors.New("user not found")
-}
-
-type mockUserRepository struct {
-	db *MockDB
-}
-
-func (r *mockUserRepository) FindById(id int) (model.User, error) {
-	panic("unimplemented")
-}
-
-func (r *mockUserRepository) ListUsers(page int, pageSize int, searchQuery string) ([]model.User, int64, error) {
-	panic("unimplemented")
-}
-
-func NewUserRepository(db *MockDB) repository.UserRepository {
-	return &mockUserRepository{db}
-}
-
-func (r *mockUserRepository) Create(input *model.User) (model.User, error) {
-	err := r.db.Create(input)
-	return *input, err
-}
-
-func (r *mockUserRepository) FindByEmail(email string) (model.User, error) {
-	var user model.User
-	user.Email = email
-	err := r.db.Where("email = ?", email).First(&user)
-	return user, err
-}
-
-func (r *mockUserRepository) UpdateUser(id int, update model.User) (model.User, error) {
-	update.ID = id
-	err := r.db.Save(&update)
-	return update, err
-}
-
-func (r *mockUserRepository) DeleteUser(id int) error {
-	var user model.User
-	user.ID = id
-	return r.db.Delete(&user)
+	db.AutoMigrate(&User{})
+	return db, nil
 }
 
 func TestCreate(t *testing.T) {
-	mockDB := NewMockDB()
-	repo := NewUserRepository(mockDB)
+	db, err := setupTestDB()
+	assert.NoError(t, err)
 
-	user := &model.User{
-		Username: "johndoe",
-		Email:    "johndoe@example.com",
-		Password: "securepassword",
-	}
+	repo := NewUserRepository(db)
 
-	createdUser, err := repo.Create(user)
+	inputUser := model.User{Username: "techuser", Email: "tech@example.com", Password: "password123"}
+	createdUser, err := repo.Create(&inputUser)
 
 	assert.NoError(t, err)
-	assert.Equal(t, "johndoe", createdUser.Username)
-	assert.Equal(t, "johndoe@example.com", createdUser.Email)
+	assert.Equal(t, "techuser", createdUser.Username)
+	assert.Equal(t, "tech@example.com", createdUser.Email)
+	assert.NotEqual(t, 0, createdUser.ID)
 }
 
 func TestFindByEmail(t *testing.T) {
-	mockDB := NewMockDB()
-	repo := NewUserRepository(mockDB)
-
-	mockDB.Create(&model.User{Username: "johndoe", Email: "johndoe@example.com", Password: "securepassword"})
-
-	user, err := repo.FindByEmail("johndoe@example.com")
-
+	db, err := setupTestDB()
 	assert.NoError(t, err)
-	assert.Equal(t, "johndoe", user.Username)
-	assert.Equal(t, "johndoe@example.com", user.Email)
+	repo := NewUserRepository(db)
+
+	user := &User{Username: "findbyemailuser", Email: "find@example.com", Password: "password123"}
+	db.Create(user)
+
+	foundUser, err := repo.FindByEmail("find@example.com")
+	assert.NoError(t, err)
+	assert.Equal(t, "findbyemailuser", foundUser.Username)
+	assert.Equal(t, "find@example.com", foundUser.Email)
+
+	_, err = repo.FindByEmail("nonexistent@example.com")
+	assert.Error(t, err)
+	assert.True(t, errors.Is(err, gorm.ErrRecordNotFound))
+}
+
+func TestListUsers(t *testing.T) {
+	db, err := setupTestDB()
+	assert.NoError(t, err)
+	repo := NewUserRepository(db)
+
+	db.Create(&User{Username: "user1", Email: "user1@example.com"})
+	db.Create(&User{Username: "user2", Email: "user2@example.com"})
+	db.Create(&User{Username: "searchuser", Email: "search@example.com"})
+
+	users, count, err := repo.ListUsers(1, 10, "")
+	assert.NoError(t, err)
+	assert.Len(t, users, 3)
+	assert.Equal(t, int64(3), count)
+
+	users, count, err = repo.ListUsers(1, 10, "search")
+	assert.NoError(t, err)
+	assert.Len(t, users, 1)
+	assert.Equal(t, int64(1), count)
+	assert.Equal(t, "searchuser", users[0].Username)
+
+	users, count, err = repo.ListUsers(1, 1, "")
+	assert.NoError(t, err)
+	assert.Len(t, users, 1)
+	assert.Equal(t, int64(3), count)
+}
+
+func TestFindById(t *testing.T) {
+	db, err := setupTestDB()
+	assert.NoError(t, err)
+	repo := NewUserRepository(db)
+
+	user := &User{Username: "findbyiduser", Email: "id@example.com"}
+	db.Create(user)
+
+	foundUser, err := repo.FindById(user.ID)
+	assert.NoError(t, err)
+	assert.Equal(t, user.ID, foundUser.ID)
+	assert.Equal(t, "findbyiduser", foundUser.Username)
+
+	_, err = repo.FindById(999)
+	assert.Error(t, err)
+	assert.EqualError(t, err, "User not found")
 }
 
 func TestUpdateUser(t *testing.T) {
-	mockDB := NewMockDB()
-	repo := NewUserRepository(mockDB)
+	db, err := setupTestDB()
+	assert.NoError(t, err)
+	repo := NewUserRepository(db)
 
-	mockDB.Create(&model.User{Username: "johndoe", Email: "johndoe@example.com", Password: "securepassword"})
+	user := &User{Username: "olduser", Email: "old@example.com"}
+	db.Create(user)
 
-	updatedUser := model.User{Username: "johnupdated", Email: "johnupdated@example.com"}
-	updatedUserResult, err := repo.UpdateUser(1, updatedUser)
+	updatedData := model.User{ID: user.ID, Username: "updateduser", Email: "updated@example.com"}
+	updatedUser, err := repo.UpdateUser(user.ID, updatedData)
 
 	assert.NoError(t, err)
-	assert.Equal(t, "johnupdated", updatedUserResult.Username)
-	assert.Equal(t, "johnupdated@example.com", updatedUserResult.Email)
+	assert.Equal(t, "updateduser", updatedUser.Username)
+	assert.Equal(t, "updated@example.com", updatedUser.Email)
+
+	var persistedUser User
+	db.First(&persistedUser, user.ID)
+	assert.Equal(t, "updateduser", persistedUser.Username)
 }
 
 func TestDeleteUser(t *testing.T) {
-	mockDB := NewMockDB()
-	repo := NewUserRepository(mockDB)
+	db, err := setupTestDB()
+	assert.NoError(t, err)
+	repo := NewUserRepository(db)
 
-	mockDB.Create(&model.User{Username: "johndoe", Email: "johndoe@example.com", Password: "securepassword"})
+	user := &User{Username: "deleteuser", Email: "delete@example.com"}
+	db.Create(user)
 
-	err := repo.DeleteUser(1)
-
+	err = repo.DeleteUser(user.ID)
 	assert.NoError(t, err)
 
-	_, err = repo.FindByEmail("johndoe1@example.com")
-	assert.Equal(t, err.Error(), "user not found")
+	var deletedUser User
+	result := db.First(&deletedUser, user.ID)
+	assert.True(t, errors.Is(result.Error, gorm.ErrRecordNotFound))
 
+	err = repo.DeleteUser(999)
+	assert.Error(t, err)
+	assert.EqualError(t, err, "User not found")
 }
