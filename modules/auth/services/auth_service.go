@@ -36,7 +36,7 @@ func (s authService) Login(login *entity.Login) (string, error) {
 	}
 
 	if !authenticate.CompareHash(login.Password, user.Password) {
-		return "", errors.New(`Email or password incorrect`)
+		return "", errors.New(`email or password incorrect`)
 	}
 	roles := []interface{}{}
 	var rolesIds []int

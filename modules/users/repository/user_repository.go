@@ -61,10 +61,10 @@ func (u userRepository) FindById(id int) (userModel.User, error) {
 	err := u.db.Where("id = ?", id).First(&user).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return user, errors.New(`User not found`)
+			return user, errors.New(`user not found`)
 
 		}
-		return user, errors.New(`Error retrieving user`)
+		return user, errors.New(`error retrieving user`)
 
 	}
 	if err != nil {
@@ -82,9 +82,9 @@ func (u userRepository) DeleteUser(id int) error {
 	err := u.db.Where("id = ?", id).First(&user).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return errors.New(`User not found`)
+			return errors.New(`user not found`)
 		}
-		return errors.New(`Error retrieving user`)
+		return errors.New(`error retrieving user`)
 	}
 	err = u.db.Delete(&user).Error
 	if err != nil {

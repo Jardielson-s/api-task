@@ -37,13 +37,15 @@ func (s taskService) UpdateTaskService(id int, update model.TaskUpdate, userId *
 	})
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return task, errors.New(`Task not found`)
+			return task, errors.New(`task not found`)
 		}
-		return task, errors.New(`Error retrieving task`)
+		return task, errors.New(`error retrieving task`)
 	}
-	taskAlreadyExists, err := s.repo.FindByName(*update.Name)
-	if err == nil {
-		return taskAlreadyExists, errors.New(`Task already exists.`)
+	if update.Name != nil {
+		taskAlreadyExists, err := s.repo.FindByName(*update.Name)
+		if err == nil {
+			return taskAlreadyExists, errors.New(`task already exists`)
+		}
 	}
 	if update.Status != nil {
 		task.Status = *update.Status

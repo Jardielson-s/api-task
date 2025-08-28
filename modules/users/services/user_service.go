@@ -41,22 +41,22 @@ func (s userService) UpdateUserService(id int, update userModel.UpdateUser) (use
 	user, err := s.repo.FindById(id)
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return user, errors.New(`User not found`)
+			return user, errors.New(`user not found`)
 		}
-		return user, errors.New(`Error retrieving user`)
+		return user, errors.New(`error retrieving user`)
 
 	}
 
 	userAlreadyExists, err := s.repo.FindByEmail(update.Email)
 	if err == nil {
-		return userAlreadyExists, errors.New(`Email already exists.`)
+		return userAlreadyExists, errors.New(`email already exists.`)
 	}
 
 	user.Email = update.Email
 	if update.Password != nil {
 		hash, err := authenticate.CreateHash(*update.Password)
 		if err != nil {
-			return user, errors.New(`Error to update user`)
+			return user, errors.New(`error to update user`)
 		}
 		user.Password = hash
 	}

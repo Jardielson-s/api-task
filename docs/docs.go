@@ -432,6 +432,54 @@ const docTemplate = `{
                 }
             }
         },
+        "/users/link": {
+            "patch": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "link user  with role in the database",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Link user with role",
+                "parameters": [
+                    {
+                        "description": "Descrição do parâmetro",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.LinkUserWithRoleBody"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/shared.CreateResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/users/list": {
             "get": {
                 "security": [
@@ -642,7 +690,8 @@ const docTemplate = `{
                     "enum": [
                         "active",
                         "inactive",
-                        "pending"
+                        "pending",
+                        "complete"
                     ],
                     "example": "pending"
                 },
@@ -672,7 +721,7 @@ const docTemplate = `{
                     "type": "string",
                     "maxLength": 8,
                     "minLength": 6,
-                    "example": "test123456"
+                    "example": "test1234"
                 },
                 "username": {
                     "type": "string",
@@ -682,13 +731,28 @@ const docTemplate = `{
                 }
             }
         },
+        "handlers.LinkUserWithRoleBody": {
+            "type": "object",
+            "required": [
+                "role_id",
+                "user_id"
+            ],
+            "properties": {
+                "role_id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "user_id": {
+                    "type": "integer",
+                    "example": 1
+                }
+            }
+        },
         "handlers.UpdateTaskBody": {
             "type": "object",
             "properties": {
                 "name": {
                     "type": "string",
-                    "maxLength": 100,
-                    "minLength": 4,
                     "example": "New Name"
                 },
                 "status": {
@@ -696,7 +760,8 @@ const docTemplate = `{
                     "enum": [
                         "active",
                         "inactive",
-                        "pending"
+                        "pending",
+                        "complete"
                     ],
                     "example": "pending"
                 },

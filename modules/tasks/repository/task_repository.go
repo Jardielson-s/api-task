@@ -68,10 +68,10 @@ func (u taskRepository) FindById(id int) (model.Task, error) {
 	err := u.db.Where("id = ?", id).First(&task).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return task, errors.New(`Task not found`)
+			return task, errors.New(`task not found`)
 
 		}
-		return task, errors.New(`Error retrieving task`)
+		return task, errors.New(`error retrieving task`)
 
 	}
 	if err != nil {
@@ -91,10 +91,10 @@ func (u taskRepository) FindByQuery(queryInput Query) (model.Task, error) {
 	err := u.db.Where(query, queryPass...).First(&task).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return task, errors.New(`Task not found`)
+			return task, errors.New(`task not found`)
 
 		}
-		return task, errors.New(`Error retrieving task`)
+		return task, errors.New(`error retrieving task`)
 
 	}
 	if err != nil {
@@ -112,9 +112,9 @@ func (u taskRepository) DeleteTask(id int) error {
 	err := u.db.Where("id = ?", id).First(&task).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return errors.New(`Task not found`)
+			return errors.New(`task not found`)
 		}
-		return errors.New(`Error retrieving task`)
+		return errors.New(`error retrieving task`)
 	}
 	err = u.db.Delete(&task).Error
 	if err != nil {

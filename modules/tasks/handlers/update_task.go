@@ -11,9 +11,9 @@ import (
 )
 
 type UpdateTaskBody struct {
-	Name    *string `json:"name" validate:"min=4,max=100" example:"New Name"`
+	Name    *string `json:"name" example:"New Name"`
 	Summary *string `json:"summary" example:"New summary"`
-	Status  *string `json:"status" validate:"oneof=active inactive pending" example:"pending"`
+	Status  *string `json:"status" validate:"oneof=active inactive pending complete" example:"pending"`
 }
 
 // UpdateTask godoc

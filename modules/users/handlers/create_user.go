@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/Jardielson-s/api-task/modules/shared"
+	userRolesModel "github.com/Jardielson-s/api-task/modules/user_roles/repository"
 	"github.com/Jardielson-s/api-task/modules/users/model"
 	"github.com/Jardielson-s/api-task/modules/users/repository"
 	"github.com/Jardielson-s/api-task/modules/users/services"
@@ -14,12 +15,13 @@ import (
 type CreateUserBody struct {
 	Username string `json:"username" validate:"required,min=5,max=100" example:"Test User"`
 	Email    string `json:"email" validate:"required,min=10,max=100,email" example:"test@gmail.com"`
-	Password string `json:"password" validate:"required,min=6,max=8" example:"test123456"`
+	Password string `json:"password" validate:"required,min=6,max=8" example:"test1234"`
 }
 
 type UserHandler struct {
-	service services.UserService
-	repo    repository.UserRepository
+	service       services.UserService
+	repo          repository.UserRepository
+	userRolesRepo userRolesModel.UserRolesRepository
 }
 
 var validate = validator.New()
@@ -39,8 +41,8 @@ var validate = validator.New()
 //
 //	@Failure		500		{string}	string	"Internal Server Error"
 //	@Router			/users [post]
-func NewUserHandler(service services.UserService, repository repository.UserRepository) *UserHandler {
-	return &UserHandler{service, repository}
+func NewUserHandler(service services.UserService, repository repository.UserRepository, userRolesRepo userRolesModel.UserRolesRepository) *UserHandler {
+	return &UserHandler{service, repository, userRolesRepo}
 }
 
 func (h *UserHandler) CreateUserHandler(w http.ResponseWriter, r *http.Request) {
