@@ -84,3 +84,18 @@ http://localhost:${PORT}/swagger/
 docker compose   --env-file .env  up -d
 
 ````
+
+## Run tests
+```bash
+# execute
+export PATH="$PATH:$(go env GOPATH)/bin"
+## Run if you need
+# mockgen -source=./modules/tasks/repository/task_repository.go -destination=./modules/tasks/repository/mocks/mock_task_repository.go
+
+# acceess the folders
+# cd modules/tasks/repository 
+# cd modules/tasks/services
+# cd modules/users/repository 
+go test
+go 
+```

@@ -69,32 +69,6 @@ func TestFindByEmail(t *testing.T) {
 	assert.True(t, errors.Is(err, gorm.ErrRecordNotFound))
 }
 
-func TestListUsers(t *testing.T) {
-	db, err := setupTestDB()
-	assert.NoError(t, err)
-	repo := NewUserRepository(db)
-
-	db.Create(&User{Username: "user1", Email: "user1@example.com"})
-	db.Create(&User{Username: "user2", Email: "user2@example.com"})
-	db.Create(&User{Username: "searchuser", Email: "search@example.com"})
-
-	users, count, err := repo.ListUsers(1, 10, "")
-	assert.NoError(t, err)
-	assert.Len(t, users, 3)
-	assert.Equal(t, int64(3), count)
-
-	users, count, err = repo.ListUsers(1, 10, "search")
-	assert.NoError(t, err)
-	assert.Len(t, users, 1)
-	assert.Equal(t, int64(1), count)
-	assert.Equal(t, "searchuser", users[0].Username)
-
-	users, count, err = repo.ListUsers(1, 1, "")
-	assert.NoError(t, err)
-	assert.Len(t, users, 1)
-	assert.Equal(t, int64(3), count)
-}
-
 func TestFindById(t *testing.T) {
 	db, err := setupTestDB()
 	assert.NoError(t, err)

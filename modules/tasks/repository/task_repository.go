@@ -18,7 +18,7 @@ type TaskRepository interface {
 	ListTasks(page, pageSize int, searchQuery string, userId *int) ([]model.Task, int64, error)
 	FindById(id int) (model.Task, error)
 	FindByQuery(query Query) (model.Task, error)
-	UpdateTask(id int, update model.Task) (model.Task, error)
+	UpdateTask(update model.Task) (model.Task, error)
 	DeleteTask(id int) error
 }
 type taskRepository struct {
@@ -103,9 +103,9 @@ func (u taskRepository) FindByQuery(queryInput Query) (model.Task, error) {
 	return task, nil
 }
 
-func (u taskRepository) UpdateTask(id int, update model.Task) (model.Task, error) {
-	u.db.Save(&update)
-	return update, nil
+func (u taskRepository) UpdateTask(update model.Task) (model.Task, error) {
+	err := u.db.Save(&update).Error
+	return update, err
 }
 func (u taskRepository) DeleteTask(id int) error {
 	var task model.Task
