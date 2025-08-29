@@ -1,21 +1,19 @@
-<!-- go install github.com/swaggo/swag/cmd/swag@latest
-export PATH=$PATH:$(go env GOPATH)/bin
-source ~/.bashrc  # ou source ~/.zshrc
-swag init --generalInfo cmd/main.go --output docs
-Gorm -->
-
 ## Application Description
-<p> This is an aplication to manager tasks</p>
+<p> This is an aplication to manager tasks, you can access the swgger docs to run requests.</p>
 
 ## Tools
 
 - [x]   go lang 1.24.6
 - [x]   mysql
+- [x]   swagger
 - [x]   gorm
 - [x]   localstack
-- [x]   terraform
+- [x]   terraform (to run aws local)
+- [x]   aws(ses, sqs)
 
 ## Description
+* GORM is a powerful Object Relational Mapping (ORM) library for Go. It provides developers with an easy-to-use interface for interacting with databases using Go structs. GORM handles database operations such as Create, Read, Update, and Delete (CRUD), along with advanced features like associations, hooks, transactions, and migrations. It supports multiple databases including MySQL, PostgreSQL, SQLite, and SQL Server, and can be easily integrated into Go applications to simplify database interactions.
+
 * Terraform is an open-source tool for Infrastructure as Code (IaC). It allows you to define and provision your infrastructure using a declarative configuration language. This means you describe the desired state of your infrastructure (e.g., servers, databases, and networks), and Terraform automatically creates, manages, and updates these resources across various cloud providers like AWS, Azure, and Google Cloud. It helps teams manage complex environments consistently and efficiently.
 
 * AWS SQS (Simple Queue Service)
@@ -80,31 +78,53 @@ While this architecture is excellent, it's important to be aware of potential is
 ## Arch  Diagram Notification Service
 ![Notification](https://github.com/Jardielson-s/api-task/blob/main/imgs/arch_notification_service.png)
 
-## Run localstack(only local)
+<p>The application is triggered on SQS. When SQS receives a message, the application processes it and sends it to SES.</p>
+
+
+## To notification service works follow the steps
+<p> You need to run the 
+<a href="https://docs.localstack.cloud/">localstack</a>
+and <a href="https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html"> aws cli</a>
+and <a href="https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli"> terraform </a>
+</p>
+<p> You need this to run the notification service: </p>
+
 * The notification service need to create the aws resources
 
 ```bash
+# run the localstack
+docker compose up -d localstack
+
 export AWS_ACCESS_KEY_ID="tast"
 export AWS_SECRET_ACCESS_KEY="test"
 cd terraform/
 terraform init
 terraform apply --auto-approve
 
+# when the terraform build finished run
+cd ..
+./scripts/aws_verify_email.sh
+
+# if it don't work run or run 
+export AWS_ACCESS_KEY_ID="test"
+export AWS_SECRET_ACCESS_KEY="test"
+export AWS_DEFAULT_REGION="us-east-1"
+aws --endpoint-url=http://localhost:4566 ses verify-email-identity --email-address test@example.com
+
+# to finished return to main directory
+cd ..
 ```
 
-## Run application
+## Run application golang
 
-* To activate the notification feature, change the environment variable in the .env file to ACTIVE_NOTIFICATION=false
+* To activate the notification feature, follow the steps on [To notification service works follow the steps](##Tonotificationserviceworksfollowthesteps)  and change the environment variable in the .env file to ACTIVE_NOTIFICATION=false
 
 ```bash
 
 # run mysql database
-docker compose up -d mysql localstack
+docker compose up -d mysql
 
-# run
-chmod +x scripts/generateDocs.sh
-
-# generate docs if you need
+# generate docs(swagger) if you need
 # scripts/generateDocs.sh
 
 
@@ -116,7 +136,7 @@ http://localhost:${PORT}/swagger/
 
 # Docker compose
 # run all aplications
-docker compose   --env-file .env  up -d
+docker compose   --env-file .env  up go-app -d
 # access swagger
 http://localhost:${PORT}/swagger/
 
