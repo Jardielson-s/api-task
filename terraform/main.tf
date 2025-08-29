@@ -26,7 +26,7 @@ resource "aws_sqs_queue" "test_queue" {
 }
 
 resource "aws_ses_domain_identity" "test_ses" {
-  domain = "example.com"
+  domain = "test@example.com"
 }
 
 # resource "aws_ses_domain_dkim" "test_dkim" {

@@ -12,6 +12,19 @@ services:
       - 'localstack_data:/var/lib/localstack'
     networks:
       - go-network
+
+  aws-cli:
+    image: amazon/aws-cli:latest
+    volumes:
+      - ./aws-credentials:/root/.aws
+      - .:/aws
+    environment:
+      - AWS_ACCESS_KEY_ID="test"
+      - AWS_SECRET_ACCESS_KEY="test"
+      - AWS_DEFAULT_REGION="us-east-1"
+    networks:
+      - go-network
+
   mysql:
     image: mysql:8.0
     container_name: mysql-db
@@ -38,10 +51,13 @@ services:
       DB_PASSWORD: ${DB_PASSWORD}
       DB_NAME: ${DB_NAME}
       ACTIVE_NOTIFICATION: ${ACTIVE_NOTIFICATION}
-      AWS_SQS_ENDPOINT: ${AWS_SQS_ENDPOINT}
-      AWS_ENDPOINT: ${AWS_ENDPOINT}
+      AWS_SQS_ENDPOINT: ${AWS_SQS_ENDPOINT_DOCKER}
+      AWS_ENDPOINT: ${AWS_ENDPOINT_DOCKER}
       EMAIL_APPLICATION: ${EMAIL_APPLICATION}
       SECRET_KEY: ${SECRET_KEY}
+      AWS_REGION: ${AWS_REGION}
+      AWS_SECRET: ${AWS_SECRET}
+      AWS_KEY: ${AWS_KEY}
     depends_on:
       - mysql
       - localstack

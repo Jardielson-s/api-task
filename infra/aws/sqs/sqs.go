@@ -9,15 +9,21 @@ import (
 	"github.com/Jardielson-s/api-task/infra/aws/ses"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/service/sqs"
 	"github.com/aws/aws-sdk-go-v2/service/sqs/types"
 	"gorm.io/gorm"
 )
 
 func CreateSQSClient() (*sqs.Client, error) {
-	cfg, err := config.LoadDefaultConfig(context.TODO(), config.WithRegion("us-east-1"), config.WithEndpointResolver(aws.EndpointResolverFunc(func(service, region string) (aws.Endpoint, error) {
-		return aws.Endpoint{URL: os.Getenv("AWS_ENDPOINT")}, nil
-	})))
+	cfg, err := config.LoadDefaultConfig(
+		context.TODO(),
+		config.WithRegion(os.Getenv("AWS_REGION")),
+		config.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(os.Getenv("AWS_KEY"), os.Getenv("AWS_SECRET"), "")),
+		config.WithEndpointResolver(
+			aws.EndpointResolverFunc(func(service, region string) (aws.Endpoint, error) {
+				return aws.Endpoint{URL: os.Getenv("AWS_ENDPOINT")}, nil
+			})))
 	if err != nil {
 		return nil, fmt.Errorf("unable to load SDK config, %v", err)
 	}

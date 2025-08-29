@@ -14,6 +14,7 @@ import (
 	"github.com/Jardielson-s/api-task/modules/shared"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/service/ses"
 	"github.com/aws/aws-sdk-go-v2/service/ses/types"
 )
@@ -27,15 +28,21 @@ func getEmails(roleService RolesService.RolesService) []string {
 
 }
 func SendEmailService(message string) {
-	cfg, err := config.LoadDefaultConfig(context.TODO(), config.WithEndpointResolverWithOptions(aws.EndpointResolverWithOptionsFunc(
-		func(service, region string, options ...interface{}) (aws.Endpoint, error) {
-			if service == ses.ServiceID {
-				return aws.Endpoint{
-					URL: os.Getenv("AWS_ENDPOINT"),
-				}, nil
-			}
-			return aws.Endpoint{}, fmt.Errorf("unknown endpoint requested")
-		})), config.WithRegion("us-east-1"))
+	cfg, err := config.LoadDefaultConfig(
+		context.TODO(),
+		config.WithRegion(os.Getenv("AWS_REGION")),
+		config.WithCredentialsProvider(
+			credentials.NewStaticCredentialsProvider(os.Getenv("AWS_KEY"),
+				os.Getenv("AWS_SECRET"), "")),
+		config.WithEndpointResolverWithOptions(aws.EndpointResolverWithOptionsFunc(
+			func(service, region string, options ...interface{}) (aws.Endpoint, error) {
+				if service == ses.ServiceID {
+					return aws.Endpoint{
+						URL: os.Getenv("AWS_ENDPOINT"),
+					}, nil
+				}
+				return aws.Endpoint{}, fmt.Errorf("unknown endpoint requested")
+			})), config.WithRegion("AWS_REGION"))
 	if err != nil {
 		log.Fatalf("unable to load SDK config, %v", err)
 	}
@@ -53,18 +60,14 @@ func SendEmailService(message string) {
 	subject := "Notification Task Created"
 	bodyText := message
 
-	for _, to := range toAddresses {
-		sendEmail(svc, fromAddress, to, subject, bodyText)
-	}
+	go sendEmail(svc, fromAddress, toAddresses, subject, bodyText)
 }
 
-func sendEmail(svc *ses.Client, fromAddress, toAddress, subject, bodyText string) {
+func sendEmail(svc *ses.Client, fromAddress string, toAddress []string, subject, bodyText string) {
 	input := &ses.SendEmailInput{
 		Source: aws.String(fromAddress),
 		Destination: &types.Destination{
-			ToAddresses: []string{
-				toAddress,
-			},
+			ToAddresses: toAddress,
 		},
 		Message: &types.Message{
 			Subject: &types.Content{
