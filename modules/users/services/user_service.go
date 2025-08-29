@@ -44,7 +44,6 @@ func (s userService) UpdateUserService(id int, update userModel.UpdateUser) (use
 			return user, errors.New(`user not found`)
 		}
 		return user, errors.New(`error retrieving user`)
-
 	}
 
 	userAlreadyExists, err := s.repo.FindByEmail(update.Email)

@@ -10,6 +10,7 @@ import (
 	"github.com/Jardielson-s/api-task/cmd/seeders"
 	"github.com/Jardielson-s/api-task/configs"
 	"github.com/Jardielson-s/api-task/infra"
+	"github.com/Jardielson-s/api-task/infra/aws/sqs"
 	"github.com/Jardielson-s/api-task/modules/auth"
 	"github.com/Jardielson-s/api-task/modules/tasks"
 	"github.com/Jardielson-s/api-task/modules/users"
@@ -42,7 +43,10 @@ func main() {
 	tasks.TaskRoutes(mux, db)
 
 	mux.Handle("/swagger/", httpSwagger.WrapHandler)
-
+	client, _ := sqs.CreateSQSClient()
+	if os.Getenv("ACTIVE_NOTIFICATION") == "true" {
+		go sqs.ProcessMessages(client)
+	}
 	log.Println(fmt.Sprint("Server has started in: ", os.Getenv("PORT")))
 	http.ListenAndServe(fmt.Sprint(":", os.Getenv("PORT")), mux)
 }

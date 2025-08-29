@@ -1,4 +1,17 @@
 services:
+  localstack:
+    image: localstack/localstack
+    container_name: localstack_main
+    ports:
+      - '4566:4566'
+    environment:
+      - SERVICES=sqs,ses
+      - DEFAULT_REGION=us-east-1
+    volumes:
+      - '/var/run/docker.sock:/var/run/docker.sock'
+      - 'localstack_data:/var/lib/localstack'
+    networks:
+      - localstack_network
   mysql:
     image: mysql:8.0
     container_name: mysql-db
@@ -31,7 +44,11 @@ services:
 
 volumes:
   mysql-data:
+  localstack_data:
+    driver: local
 
 networks:
   go-network:
+    driver: bridge
+  localstack_network:
     driver: bridge

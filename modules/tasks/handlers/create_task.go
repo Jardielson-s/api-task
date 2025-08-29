@@ -2,8 +2,11 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"os"
 
+	"github.com/Jardielson-s/api-task/infra/aws/sqs"
 	"github.com/Jardielson-s/api-task/internal/authenticate"
 	"github.com/Jardielson-s/api-task/modules/shared"
 	_ "github.com/Jardielson-s/api-task/modules/tasks/shared"
@@ -81,7 +84,10 @@ func (h *TaskHandler) CreateTaskHandler(w http.ResponseWriter, r *http.Request) 
 
 		return
 	}
-
+	if os.Getenv("ACTIVE_NOTIFICATION") == "true" {
+		client, _ := sqs.CreateSQSClient()
+		sqs.SendMessage(client, fmt.Sprintf("Task %s created by %s", result.Name, tokenInfo.Username))
+	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(result)

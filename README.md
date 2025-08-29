@@ -60,11 +60,24 @@ While this architecture is excellent, it's important to be aware of potential is
 * Increased Complexity: As with any pattern, if not implemented correctly, it can lead to over-engineering. It's vital to keep the layers focused on their specific roles and avoid mixing responsibilities.
 
 
+## Run localstack(onnly local)
+```bash
+export AWS_ACCESS_KEY_ID="tast"
+export AWS_SECRET_ACCESS_KEY="test"
+cd terraform/
+terraform init
+terraform apply --auto-approve
+
+```
+
 ## Run application
+
+* To activate the notification feature, change the environment variable in the .env file to ACTIVE_NOTIFICATION=false
+
 ```bash
 
 # run mysql database
-docker compose up -d mysql
+docker compose up -d mysql localstack
 
 # run
 chmod +x scripts/generateDocs.sh
