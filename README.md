@@ -36,9 +36,13 @@ AWS SES is a flexible and scalable email service. It allows developers to send a
 - [x]   user_roles
 - [x]   role_permissions
 
+## Table Struct
+![Struct](https://github.com/Jardielson-s/api-task/blob/main/imgs/entities.png)
+
+
+
 ## Migrations and seeders
 <p> The migration with DDL SQL and the seeders to populate the tables are generated automatically when you run the application</p>
-## Diagram
 
 
 ## Layer Architecture
@@ -72,6 +76,9 @@ While this architecture is excellent, it's important to be aware of potential is
 
 * Increased Complexity: As with any pattern, if not implemented correctly, it can lead to over-engineering. It's vital to keep the layers focused on their specific roles and avoid mixing responsibilities.
 
+
+## Arch  Diagram Notification Service
+![Notification](https://github.com/Jardielson-s/api-task/blob/main/imgs/arch_notification_service.png)
 
 ## Run localstack(only local)
 * The notification service need to create the aws resources
