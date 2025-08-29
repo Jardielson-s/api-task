@@ -9,10 +9,23 @@ Gorm -->
 
 ## Tools
 
-- [x]   go lang 1.23.0
+- [x]   go lang 1.24.6
 - [x]   mysql
 - [x]   gorm
-- [x]   toolchain go1.24.6
+- [x]   localstack
+- [x]   terraform
+
+## Description
+* Terraform is an open-source tool for Infrastructure as Code (IaC). It allows you to define and provision your infrastructure using a declarative configuration language. This means you describe the desired state of your infrastructure (e.g., servers, databases, and networks), and Terraform automatically creates, manages, and updates these resources across various cloud providers like AWS, Azure, and Google Cloud. It helps teams manage complex environments consistently and efficiently.
+
+* AWS SQS (Simple Queue Service)
+AWS SQS is a message queuing service that lets you decouple the components of a cloud application. It stores messages in a queue so that components don't have to process them in real-time. This increases resilience and scalability, as the failure of one component doesn't affect the others.
+
+* LocalStack
+LocalStack is a framework that simulates AWS cloud services on your local machine. It's an essential development tool that allows you to test your applications without connecting to a real AWS environment, which speeds up development and reduces costs. It simulates services like SQS, S3, Lambda, and many others.
+
+* AWS SES (Simple Email Service)
+AWS SES is a flexible and scalable email service. It allows developers to send and receive emails from within their applications. It's a cost-effective solution for email marketing, sending notifications, and handling transactional messages.
 
 ## Entities
 
@@ -60,7 +73,9 @@ While this architecture is excellent, it's important to be aware of potential is
 * Increased Complexity: As with any pattern, if not implemented correctly, it can lead to over-engineering. It's vital to keep the layers focused on their specific roles and avoid mixing responsibilities.
 
 
-## Run localstack(onnly local)
+## Run localstack(only local)
+* The notification service need to create the aws resources
+
 ```bash
 export AWS_ACCESS_KEY_ID="tast"
 export AWS_SECRET_ACCESS_KEY="test"
@@ -93,8 +108,15 @@ go run cmd/main.go
 http://localhost:${PORT}/swagger/
 
 # Docker compose
-# run
+# run all aplications
 docker compose   --env-file .env  up -d
+# access swagger
+http://localhost:${PORT}/swagger/
+
+# run separetae
+docker compose   --env-file .env  up -d localstack mysql
+docker compose   --env-file .env  up -d localstack mysql
+
 
 ````
 

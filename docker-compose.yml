@@ -11,7 +11,7 @@ services:
       - '/var/run/docker.sock:/var/run/docker.sock'
       - 'localstack_data:/var/lib/localstack'
     networks:
-      - localstack_network
+      - go-network
   mysql:
     image: mysql:8.0
     container_name: mysql-db
@@ -37,8 +37,14 @@ services:
       DB_USER: ${DB_USER}
       DB_PASSWORD: ${DB_PASSWORD}
       DB_NAME: ${DB_NAME}
+      ACTIVE_NOTIFICATION: ${ACTIVE_NOTIFICATION}
+      AWS_SQS_ENDPOINT: ${AWS_SQS_ENDPOINT}
+      AWS_ENDPOINT: ${AWS_ENDPOINT}
+      EMAIL_APPLICATION: ${EMAIL_APPLICATION}
+      SECRET_KEY: ${SECRET_KEY}
     depends_on:
       - mysql
+      - localstack
     networks:
       - go-network
 
@@ -49,6 +55,4 @@ volumes:
 
 networks:
   go-network:
-    driver: bridge
-  localstack_network:
     driver: bridge
