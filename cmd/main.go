@@ -45,7 +45,7 @@ func main() {
 	mux.Handle("/swagger/", httpSwagger.WrapHandler)
 	client, _ := sqs.CreateSQSClient()
 	if os.Getenv("ACTIVE_NOTIFICATION") == "true" {
-		go sqs.ProcessMessages(client)
+		go sqs.ProcessMessages(client, db)
 	}
 	log.Println(fmt.Sprint("Server has started in: ", os.Getenv("PORT")))
 	http.ListenAndServe(fmt.Sprint(":", os.Getenv("PORT")), mux)

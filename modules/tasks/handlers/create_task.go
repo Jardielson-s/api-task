@@ -12,6 +12,7 @@ import (
 	_ "github.com/Jardielson-s/api-task/modules/tasks/shared"
 
 	"github.com/Jardielson-s/api-task/modules/tasks/model"
+
 	"github.com/Jardielson-s/api-task/modules/tasks/repository"
 	"github.com/Jardielson-s/api-task/modules/tasks/services"
 
